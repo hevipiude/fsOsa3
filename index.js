@@ -37,7 +37,7 @@ app.get('/api/persons', (req, res) => {
 app.get('/api/persons/:id', (req, res) => {
   const id = +req.params.id
   const user = persons.find((u) => u.id === id)
-  if (persons.find((u) => u.id === id) != null) {
+  if (user != null) {
     res.send(user)
   } else {
     res.status(404).send(`User with id: ${id} not found`)
@@ -69,6 +69,18 @@ app.post('/api/persons', (request, response) => {
   if (!body.name) {
     return response.status(400).json({
       error: 'name missing',
+    })
+  }
+
+  if (!body.number) {
+    return response.status(400).json({
+      error: 'number missing',
+    })
+  }
+
+  if (persons.find((u) => u.name === body.name)) {
+    return response.status(409).json({
+      error: 'name must be unique',
     })
   }
 
