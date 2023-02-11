@@ -44,6 +44,17 @@ app.get('/api/persons/:id', (req, res) => {
   }
 })
 
+app.delete('/api/persons/:id', (req, res) => {
+  const id = +req.params.id
+  const user = persons.findIndex((u) => u.id === id)
+  if (persons.find((u) => u.id === id) != null) {
+    persons.splice(user, 1)
+    res.send()
+  } else {
+    res.status(404).send(`User with id: ${id} not found`)
+  }
+})
+
 app.get('/info', (req, res) => {
   res.send(
     `<p>Phonebook has info for ${
