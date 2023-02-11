@@ -30,8 +30,18 @@ const generateId = () => {
   return maxId + 1
 }
 
-app.get('/persons', (req, res) => {
+app.get('/api/persons', (req, res) => {
   res.json(persons)
+})
+
+app.get('/api/persons/:id', (req, res) => {
+  const id = +req.params.id
+  const user = persons.find((u) => u.id === id)
+  if (persons.find((u) => u.id === id) != null) {
+    res.send(user)
+  } else {
+    res.status(404).send(`User with id: ${id} not found`)
+  }
 })
 
 app.get('/info', (req, res) => {
@@ -42,7 +52,7 @@ app.get('/info', (req, res) => {
   )
 })
 
-app.post('/persons', (request, response) => {
+app.post('/api/persons', (request, response) => {
   const body = request.body
 
   if (!body.name) {
