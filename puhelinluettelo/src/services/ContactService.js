@@ -1,30 +1,30 @@
 import axios from 'axios'
 const baseUrl = '/api/contacts'
 
-const getPersons = async () => {
+const getContacts = async () => {
   const request = axios.get(baseUrl)
   return request.then((response) => response.data)
 }
 
-const addPerson = async (newObject) => {
+const addContact = async (newObject) => {
   const request = axios.post(baseUrl, newObject)
   return request.then((response) => response.data)
 }
 
-const updatePerson = async (id, newObject) => {
+const updateContact = async (id, newObject) => {
   const request = axios.put(`${baseUrl}/${id}`, newObject)
   console.log('Payload:', newObject)
   return request.then((response) => response.data)
 }
 
-const removePerson = async (id) => {
+const removeContact = async (id) => {
   const request = axios.delete(`${baseUrl}/${id}`)
   return request.then((response) => response.data)
 }
 
 export default {
-  getPersons,
-  addPerson,
-  updatePerson,
-  removePerson,
+  getContacts,
+  addContact,
+  updateContact,
+  removeContact,
 }

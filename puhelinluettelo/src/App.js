@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import Notification from './components/Notification'
-import PersonService from './services/PersonService'
+import ContactService from './services/ContactService'
 import './App.css'
 
 const App = () => {
@@ -24,14 +24,14 @@ const App = () => {
   }
 
   useEffect(() => {
-    PersonService.getPersons().then((initialContacts) => {
+    ContactService.getContacts().then((initialContacts) => {
       setPersons(initialContacts)
     })
   }, [])
 
   const removeContact = (person, id) => {
     if (window.confirm(`Delete ${person.name}?`)) {
-      PersonService.removePerson(id).then(() => {
+      ContactService.removeContact(id).then(() => {
         setPersons((current) => current.filter((person) => person.id !== id))
       })
 
@@ -49,7 +49,7 @@ const App = () => {
     const changedContact = { ...contact, number: newNumber }
     console.log(changedContact)
 
-    PersonService.updatePerson(id, changedContact)
+    ContactService.updateContact(id, changedContact)
       .then((returnedContact) => {
         setPersons(
           persons.map((contact) =>
@@ -84,7 +84,7 @@ const App = () => {
       number: newNumber,
     }
 
-    PersonService.addPerson(contactObject).then((returnedPerson) => {
+    ContactService.addContact(contactObject).then((returnedPerson) => {
       setPersons(persons.concat(returnedPerson))
       setNewName('')
       setNewNumber('')

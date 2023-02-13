@@ -56,9 +56,18 @@ app.get('/api/contacts', (req, res) => {
 
 // muokkaa kantakelposeksi
 app.get('/api/contacts/:id', (req, res) => {
-  Contact.findById(req.params.id).then((contact) => {
-    res.json(contact)
-  })
+  Contact.findById(req.params.id)
+    .then((contact) => {
+      if (contact) {
+        res.json(contact)
+      } else {
+        res.status(404).end()
+      }
+    })
+    .catch((error) => {
+      console.log(error)
+      res.status(400).send({ error: 'malformatted id' })
+    })
 })
 
 // muokkaa kantakelposeksi
