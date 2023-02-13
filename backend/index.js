@@ -1,3 +1,4 @@
+require('dotenv').config()
 const express = require('express')
 const app = express()
 app.use(express.json())
@@ -16,97 +17,86 @@ app.use(cors())
 
 app.use(express.static('build'))
 
-let persons = [
-  {
-    name: 'Arto Hellas',
-    number: '040-123456',
-    id: 1,
-  },
-  {
-    name: 'Ada Lovelace',
-    number: '39-44-5323523',
-    id: 2,
-  },
-  {
-    name: 'Dan Abramov',
-    number: '12-43-234345',
-    id: 3,
-  },
-  {
-    name: 'Mary Poppendieck',
-    number: '39-23-6423122',
-    id: 4,
-  },
-]
+const Contact = require('./models/contact.js')
 
-const generateId = () => {
-  const maxId = persons.length > 0 ? Math.max(...persons.map((n) => n.id)) : 0
-  return maxId + 1
-}
+// let persons = [
+//   {
+//     name: 'Arto Hellas',
+//     number: '040-123456',
+//     id: 1,
+//   },
+//   {
+//     name: 'Ada Lovelace',
+//     number: '39-44-5323523',
+//     id: 2,
+//   },
+//   {
+//     name: 'Dan Abramov',
+//     number: '12-43-234345',
+//     id: 3,
+//   },
+//   {
+//     name: 'Mary Poppendieck',
+//     number: '39-23-6423122',
+//     id: 4,
+//   },
+// ]
 
-app.get('/api/persons', (req, res) => {
-  res.json(persons)
+// const generateId = () => {
+//   const maxId = persons.length > 0 ? Math.max(...persons.map((n) => n.id)) : 0
+//   return maxId + 1
+// }
+
+app.get('/api/contacts', (req, res) => {
+  Contact.find(req.params.id).then((contact) => {
+    res.json(contact)
+    console.log(contact)
+  })
 })
 
-app.get('/api/persons/:id', (req, res) => {
-  const id = +req.params.id
-  const user = persons.find((u) => u.id === id)
-  if (user != null) {
-    res.send(user)
-  } else {
-    res.status(404).send(`User with id: ${id} not found`)
-  }
+// muokkaa kantakelposeksi
+app.get('/api/contacts/:id', (req, res) => {
+  Contact.findById(req.params.id).then((contact) => {
+    res.json(contact)
+  })
 })
 
-app.delete('/api/persons/:id', (req, res) => {
+// muokkaa kantakelposeksi
+app.delete('/api/contacts/:id', (req, res) => {
   const id = +req.params.id
-  const user = persons.findIndex((u) => u.id === id)
-  if (persons.find((u) => u.id === id) != null) {
-    persons.splice(user, 1)
+  const user = contacts.findIndex((u) => u.id === id)
+  if (contacts.find((u) => u.id === id) != null) {
+    contacts.splice(user, 1)
     res.send()
   } else {
     res.status(404).send(`User with id: ${id} not found`)
   }
 })
 
+// muokkaa kantakelposeksi
 app.get('/info', (req, res) => {
   res.send(
     `<p>Phonebook has info for ${
-      persons.length
+      contacts.length
     } people.</p><p>${new Date()}</p>`
   )
 })
 
-app.post('/api/persons', (request, response) => {
+app.post('/api/contacts', (request, response) => {
   const body = request.body
 
-  if (!body.name) {
-    return response.status(400).json({
-      error: 'name missing',
-    })
+  if (body.name === undefined) {
+    return response.status(400).json({ error: 'name missing' })
   }
 
-  if (!body.number) {
-    return response.status(400).json({
-      error: 'number missing',
-    })
-  }
-
-  if (persons.find((u) => u.name === body.name)) {
-    return response.status(409).json({
-      error: 'name must be unique',
-    })
-  }
-
-  const note = {
+  const contact = new Contact({
     name: body.name,
     number: body.number,
-    id: generateId(),
-  }
+  })
 
-  persons = persons.concat(note)
-
-  response.json(note)
+  contact.save().then((savedContact) => {
+    response.json(savedContact)
+  })
 })
 
 const PORT = process.env.PORT || 3001
