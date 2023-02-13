@@ -19,43 +19,35 @@ app.use(express.static('build'))
 
 const Contact = require('./models/contact.js')
 
-// let persons = [
-//   {
-//     name: 'Arto Hellas',
-//     number: '040-123456',
-//     id: 1,
-//   },
-//   {
-//     name: 'Ada Lovelace',
-//     number: '39-44-5323523',
-//     id: 2,
-//   },
-//   {
-//     name: 'Dan Abramov',
-//     number: '12-43-234345',
-//     id: 3,
-//   },
-//   {
-//     name: 'Mary Poppendieck',
-//     number: '39-23-6423122',
-//     id: 4,
-//   },
-// ]
+const errorHandler = (error, req, res, next) => {
+  console.error(error.message)
 
-// const generateId = () => {
-//   const maxId = persons.length > 0 ? Math.max(...persons.map((n) => n.id)) : 0
-//   return maxId + 1
-// }
+  if (error.name === 'CastError') {
+    return res.status(400).send({ error: 'malformatted id' })
+  }
+
+  next(error)
+}
+
+const countStuff = () => {
+  Contact.countDocuments({}, function (err, count) {
+    if (err) {
+      console.log(err)
+    } else {
+      console.log('Count :', count)
+      return (getCount = count)
+    }
+  })
+}
+let getCount = countStuff()
 
 app.get('/api/contacts', (req, res) => {
   Contact.find(req.params.id).then((contact) => {
     res.json(contact)
-    console.log(contact)
   })
 })
 
-// muokkaa kantakelposeksi
-app.get('/api/contacts/:id', (req, res) => {
+app.get('/api/contacts/:id', (req, res, next) => {
   Contact.findById(req.params.id)
     .then((contact) => {
       if (contact) {
@@ -64,38 +56,44 @@ app.get('/api/contacts/:id', (req, res) => {
         res.status(404).end()
       }
     })
-    .catch((error) => {
-      console.log(error)
-      res.status(400).send({ error: 'malformatted id' })
+    .catch((error) => next(error))
+})
+
+app.delete('/api/contacts/:id', (req, res, next) => {
+  Contact.findByIdAndRemove(req.params.id)
+    .then((result) => {
+      res.status(204).end()
     })
+    .catch((error) => next(error))
 })
 
-// muokkaa kantakelposeksi
-app.delete('/api/contacts/:id', (req, res) => {
-  const id = +req.params.id
-  const user = contacts.findIndex((u) => u.id === id)
-  if (contacts.find((u) => u.id === id) != null) {
-    contacts.splice(user, 1)
-    res.send()
-  } else {
-    res.status(404).send(`User with id: ${id} not found`)
+app.put('/api/contacts/:id', (req, res, next) => {
+  const body = req.body
+
+  const contact = {
+    name: body.name,
+    number: body.number,
+    id: body.id,
   }
+
+  Contact.findByIdAndUpdate(req.params.id, contact, { new: true })
+    .then((updatedContact) => {
+      res.json(updatedContact)
+    })
+    .catch((error) => next(error))
 })
 
-// muokkaa kantakelposeksi
 app.get('/info', (req, res) => {
   res.send(
-    `<p>Phonebook has info for ${
-      contacts.length
-    } people.</p><p>${new Date()}</p>`
+    `<p>Phonebook has info for ${getCount} people.</p><p>${new Date()}</p>`
   )
 })
 
-app.post('/api/contacts', (request, response) => {
-  const body = request.body
+app.post('/api/contacts', (req, res) => {
+  const body = req.body
 
   if (body.name === undefined) {
-    return response.status(400).json({ error: 'name missing' })
+    return res.status(400).json({ error: 'name missing' })
   }
 
   const contact = new Contact({
@@ -104,9 +102,11 @@ app.post('/api/contacts', (request, response) => {
   })
 
   contact.save().then((savedContact) => {
-    response.json(savedContact)
+    res.json(savedContact)
   })
 })
+
+app.use(errorHandler)
 
 const PORT = process.env.PORT || 3001
 app.listen(PORT, () => {
