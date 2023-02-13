@@ -13,7 +13,6 @@ const addContact = async (newObject) => {
 
 const updateContact = async (id, newObject) => {
   const request = axios.put(`${baseUrl}/${id}`, newObject)
-  console.log('Payload:', newObject)
   return request.then((response) => response.data)
 }
 

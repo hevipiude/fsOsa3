@@ -47,7 +47,6 @@ const App = () => {
   const updateContact = (id) => {
     const contact = persons.find((n) => n.id === id)
     const changedContact = { ...contact, number: newNumber }
-    console.log(changedContact)
 
     ContactService.updateContact(id, changedContact)
       .then((returnedContact) => {
@@ -102,7 +101,6 @@ const App = () => {
     e.preventDefault()
     const toFind = persons.find((person) => person.name === newName)
     if (toFind) {
-      console.log(toFind.id)
       if (
         window.confirm(
           `A number for ${newName} already exists, do you want to replace the old number with a new one?`
@@ -166,7 +164,7 @@ const ContactList = ({ newFilter, persons, removeContact, updateContact }) => {
       <h3>Numbers</h3>
       {visiblePersons.map((person) => (
         <Contact
-          key={person.name}
+          key={person.id}
           person={person}
           removeContact={removeContact}
           updateContact={() => updateContact(person.id)}
