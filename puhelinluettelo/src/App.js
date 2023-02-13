@@ -83,11 +83,23 @@ const App = () => {
       number: newNumber,
     }
 
-    ContactService.addContact(contactObject).then((returnedPerson) => {
-      setPersons(persons.concat(returnedPerson))
-      setNewName('')
-      setNewNumber('')
-    })
+    ContactService.addContact(contactObject)
+      .then((returnedPerson) => {
+        setPersons(persons.concat(returnedPerson))
+        setNewName('')
+        setNewNumber('')
+      })
+      .catch((error) => {
+        setColor('warning')
+        setMessage(
+          `the name: '${contactObject.name}' is too short, length should be at least 3`
+        )
+        console.log(error.response.data)
+        setTimeout(() => {
+          setMessage('')
+          setColor('')
+        }, 5000)
+      })
 
     setColor('success')
     setMessage(`Contact "${contactObject.name}" added succesfully`)

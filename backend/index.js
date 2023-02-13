@@ -20,10 +20,13 @@ app.use(express.static('build'))
 const Contact = require('./models/contact.js')
 
 const errorHandler = (error, req, res, next) => {
+  const body = req.body
   console.error(error.message)
 
   if (error.name === 'CastError') {
     return res.status(400).send({ error: 'malformatted id' })
+  } else if (error.name === 'ValidationError') {
+    return res.status(400).json({ error: error.message })
   }
 
   next(error)
@@ -89,7 +92,7 @@ app.get('/info', (req, res) => {
   )
 })
 
-app.post('/api/contacts', (req, res) => {
+app.post('/api/contacts', (req, res, next) => {
   const body = req.body
 
   if (body.name === undefined) {
@@ -101,9 +104,12 @@ app.post('/api/contacts', (req, res) => {
     number: body.number,
   })
 
-  contact.save().then((savedContact) => {
-    res.json(savedContact)
-  })
+  contact
+    .save()
+    .then((savedContact) => {
+      res.json(savedContact)
+    })
+    .catch((error) => next(error))
 })
 
 app.use(errorHandler)
